@@ -44,6 +44,10 @@ module VagrantPlugins
             env[:ui].info "Setting custom vlan: #{config.vlan}" unless config.vlan.nil?
             add_custom_vlan(template, dc, spec, config.vlan) unless config.vlan.nil?
 
+            # CD-ROM Hack!
+            env[:ui].info "Setting ISO: [#{config.iso_datastore}] #{config.iso_path}" unless config.iso_datastore.nil? && config.iso_path.nil?
+            add_iso(dc, config.iso_datastore, config.iso_path, template, spec)
+
             env[:ui].info "Setting custom memory: #{config.memory_mb}" unless config.memory_mb.nil?
             add_custom_memory(spec, config.memory_mb) unless config.memory_mb.nil?
 
@@ -246,7 +250,30 @@ module VagrantPlugins
         #  card_spec = { :deviceChange => [{ :operation => :edit, :device => card }] }
         #  template.ReconfigVM_Task(:spec => card_spec).wait_for_completion
         #end
-       
+
+        def add_iso(dc, iso_datastore, iso_path, template, spec)
+
+          # Need a bit more validation here - such as does the DS exist along with the ISO!
+          ds = dc.datastoreFolder.traverse(iso_datastore)
+
+          cdromDrive = template.config.hardware.device.grep(RbVmomi::VIM::VirtualCdrom).first
+          cdromDrive.backing = RbVmomi::VIM::VirtualCdromIsoBackingInfo(
+            :datastore => ds,
+            :fileName => "[#{ds.name}] #{iso_path}"
+          )
+
+          cdromDrive.connectable = RbVmomi::VIM::VirtualDeviceConnectInfo(
+            :allowGuestControl => true,
+            :startConnected => true,
+            :connected => true
+          )
+
+          dev_spec = RbVmomi::VIM.VirtualDeviceConfigSpec(device: cdromDrive, operation: 'edit')
+          spec[:config][:deviceChange].push dev_spec
+          spec[:config][:deviceChange].uniq!
+        end
+
+
         def add_custom_address_type(template, spec, addressType)
           modify_network_card(template, spec) do |card|
             card.addressType = addressType

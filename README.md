@@ -154,6 +154,8 @@ This provider has the following settings, all are required unless noted:
 * `wait_for_sysprep` - _Optional_ Boolean. Enable waiting for Windows machines to reboot
   during the sysprep process
   ([#199](https://github.com/nsidc/vagrant-vsphere/pull/199)). Defaults to `false`.
+* `iso_datastore` - _Optional_ vSphere datastore name, name a datastore to pick up an ISO File.
+* `iso_path` - _Optional_ ISO datastore file path. a string value to the path of the ISO from the root of the datastore in iso_datastore.
 
 ### Cloning from a VM rather than a template
 

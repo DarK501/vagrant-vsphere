@@ -238,13 +238,19 @@ module VagrantPlugins
           spec[:config][:deviceChange].uniq!
         end
 
+        #def add_custom_address_type(template, spec, addressType)
+        #  spec[:config][:deviceChange] = []
+        #  config = template.config
+        #  card = config.hardware.device.grep(RbVmomi::VIM::VirtualEthernetCard).first || fail(Errors::VSphereError, :missing_network_card)
+        #  card.addressType = addressType
+        #  card_spec = { :deviceChange => [{ :operation => :edit, :device => card }] }
+        #  template.ReconfigVM_Task(:spec => card_spec).wait_for_completion
+        #end
+       
         def add_custom_address_type(template, spec, addressType)
-          spec[:config][:deviceChange] = []
-          config = template.config
-          card = config.hardware.device.grep(RbVmomi::VIM::VirtualEthernetCard).first || fail(Errors::VSphereError, :missing_network_card)
-          card.addressType = addressType
-          card_spec = { :deviceChange => [{ :operation => :edit, :device => card }] }
-          template.ReconfigVM_Task(:spec => card_spec).wait_for_completion
+          modify_network_card(template, spec) do |card|
+            card.addressType = addressType
+          end
         end
 
         def add_custom_mac(template, spec, mac)

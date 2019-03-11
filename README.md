@@ -156,6 +156,7 @@ This provider has the following settings, all are required unless noted:
   ([#199](https://github.com/nsidc/vagrant-vsphere/pull/199)). Defaults to `false`.
 * `iso_datastore` - _Optional_ vSphere datastore name, name a datastore to pick up an ISO File.
 * `iso_path` - _Optional_ ISO datastore file path. a string value to the path of the ISO from the root of the datastore in iso_datastore.
+* `disks` - _Optional_ An array of 'new' additional disks to add to the VM during the clone.
 
 ### Cloning from a VM rather than a template
 

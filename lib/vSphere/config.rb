@@ -33,6 +33,7 @@ module VagrantPlugins
       attr_accessor :wait_for_sysprep
       attr_accessor :iso_datastore
       attr_accessor :iso_path
+      attr_accessor :disks
 
       attr_reader :custom_attributes
 

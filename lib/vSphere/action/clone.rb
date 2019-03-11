@@ -48,6 +48,11 @@ module VagrantPlugins
             env[:ui].info "Setting ISO: [#{config.iso_datastore}] #{config.iso_path}" unless config.iso_datastore.nil? && config.iso_path.nil?
             add_iso(dc, config.iso_datastore, config.iso_path, template, spec)
 
+            config.disks.each do |disk|
+              env[:ui].info "Adding additional hard disk #{disk[0]}: #{disk[1]} GB"
+              add_disk(template, spec, disk)
+            end
+
             env[:ui].info "Setting custom memory: #{config.memory_mb}" unless config.memory_mb.nil?
             add_custom_memory(spec, config.memory_mb) unless config.memory_mb.nil?
 
@@ -273,6 +278,33 @@ module VagrantPlugins
           spec[:config][:deviceChange].uniq!
         end
 
+        def add_disk(template, spec, disk)
+
+          existingDisk = template.config.hardware.device.grep(RbVmomi::VIM::VirtualDisk).last
+
+          newDiskBacking = RbVmomi::VIM.VirtualDiskFlatVer2BackingInfo(
+          		:fileName => '',
+          		:diskMode => 'persistent',
+          		:thinProvisioned => true
+          )
+
+          newDisk = RbVmomi::VIM::VirtualDisk(
+          	:key => (existingDisk.key + disk[0]),
+          	:backing => newDiskBacking,
+          	:controllerKey => existingDisk.controllerKey,
+          	:unitNumber => (existingDisk.unitNumber + disk[0]),
+          	:capacityInKB => disk[1] * 1024 * 1024
+          )
+
+          dev_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+          	:operation => 'add',
+          	:fileOperation => 'create',
+          	:device => newDisk
+          )
+
+          spec[:config][:deviceChange].push dev_spec
+          spec[:config][:deviceChange].uniq!
+        end
 
         def add_custom_address_type(template, spec, addressType)
           modify_network_card(template, spec) do |card|

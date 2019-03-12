@@ -48,9 +48,11 @@ module VagrantPlugins
             env[:ui].info "Setting ISO: [#{config.iso_datastore}] #{config.iso_path}" unless config.iso_datastore.nil? && config.iso_path.nil?
             add_iso(dc, config.iso_datastore, config.iso_path, template, spec)
 
-            config.disks.each do |disk|
-              env[:ui].info "Adding additional hard disk #{disk[0]}: #{disk[1]} GB"
-              add_disk(template, spec, disk)
+            unless config.disks.nil?
+              config.disks.each do |disk|
+                env[:ui].info "Adding additional hard disk #{disk[0]}: #{disk[1]} GB"
+                add_disk(template, spec, disk)
+              end
             end
 
             env[:ui].info "Setting custom memory: #{config.memory_mb}" unless config.memory_mb.nil?

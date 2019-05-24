@@ -45,8 +45,10 @@ module VagrantPlugins
             add_custom_vlan(template, dc, spec, config.vlan) unless config.vlan.nil?
 
             # CD-ROM Hack!
-            env[:ui].info "Setting ISO: [#{config.iso_datastore}] #{config.iso_path}" unless config.iso_datastore.nil? && config.iso_path.nil?
-            add_iso(dc, config.iso_datastore, config.iso_path, template, spec)
+            unless config.iso_path.nil?
+              env[:ui].info "Setting ISO: [#{config.iso_datastore}] #{config.iso_path}" unless config.iso_datastore.nil? && config.iso_path.nil?
+              add_iso(dc, config.iso_datastore, config.iso_path, template, spec)
+            end
 
             unless config.disks.nil?
               config.disks.each do |disk|
